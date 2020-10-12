@@ -25,7 +25,7 @@ import lombok.Setter;
 @Data
 @Builder
 @NoArgsConstructor
-@AllArgsConstructor
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Entity
 @Table(name = "tb_product")
 public class Product implements Serializable {
@@ -54,6 +54,16 @@ public class Product implements Serializable {
 	@Builder.Default
 	@Setter(value = AccessLevel.NONE)
 	private Set<Category> categories = new HashSet<>();
+	
+	public Product(Long id, String name, String description, Double price, String imgUrl, Instant date) {
+		super();
+		this.id = id;
+		this.name = name;
+		this.description = description;
+		this.price = price;
+		this.imgUrl = imgUrl;
+		this.date = date;
+	}
 	
 	@Override
 	public boolean equals(Object obj) {
