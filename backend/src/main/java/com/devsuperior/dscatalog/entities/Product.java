@@ -41,7 +41,6 @@ public class Product implements Serializable {
 	private Double price;
 	private String imgUrl;
 	
-	@Setter(value = AccessLevel.NONE)
 	@Column(columnDefinition = "TIMESTAMP WITHOUT TIME ZONE")
 	private Instant date;
 	
