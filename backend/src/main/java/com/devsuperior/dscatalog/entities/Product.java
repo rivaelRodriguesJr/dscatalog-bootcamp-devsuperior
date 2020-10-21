@@ -15,17 +15,6 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-
-@Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Entity
 @Table(name = "tb_product")
 public class Product implements Serializable {
@@ -50,20 +39,65 @@ public class Product implements Serializable {
 		joinColumns = @JoinColumn(name = "product_id"),
 		inverseJoinColumns = @JoinColumn(name = "category_id")
 	)
-	@Builder.Default
-	@Setter(value = AccessLevel.NONE)
 	private Set<Category> categories = new HashSet<>();
 	
-	public Product(Long id, String name, String description, Double price, String imgUrl, Instant date) {
-		super();
+	public Product() {
+	}	
+
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
 		this.id = id;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
 		this.name = name;
+	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
 		this.description = description;
+	}
+
+	public Double getPrice() {
+		return price;
+	}
+
+	public void setPrice(Double price) {
 		this.price = price;
+	}
+
+
+
+	public String getImgUrl() {
+		return imgUrl;
+	}
+
+	public void setImgUrl(String imgUrl) {
 		this.imgUrl = imgUrl;
+	}
+
+	public Instant getDate() {
+		return date;
+	}
+
+	public void setDate(Instant date) {
 		this.date = date;
 	}
-	
+
+	public Set<Category> getCategories() {
+		return categories;
+	}
+
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
