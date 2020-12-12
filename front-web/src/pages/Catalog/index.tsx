@@ -2,20 +2,19 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ProductsResponse } from 'core/types/Product';
 import { makeRequest } from 'core/utils/request';
+import Pagination from 'core/components/Pagination';
 import ProductCard from './components/ProductCard';
 import ProductCardLoader from './components/Loaders/ProductCardLoader';
 import './styles.scss';
 
 const Catalog = () => {
-  // quando a lista de produtos estiver diponível,
-  // popular um estado no componente, e listar os produtos dinâmicamente
   const [productsResponse, setProductsResponse] = useState<ProductsResponse>();
   const [isLoading, setIsLoading] = useState(false);
+  const [activePage, setActivePage] = useState(0);
   
-  // quando o componente inicial, buscar a lista de produtos
   useEffect(() => {
     const params = {
-      page: 0,
+      page: activePage,
       linesPerPage: 12
     }
 
@@ -23,7 +22,7 @@ const Catalog = () => {
     makeRequest({ url: '/products', params })
       .then(response => setProductsResponse(response.data))
       .finally(() => setIsLoading(false));
-  }, []);
+  }, [activePage]);
 
   return (
     <div className="catalog-container">
@@ -37,6 +36,13 @@ const Catalog = () => {
           ))
         )}
       </div>
+      {productsResponse && (
+        <Pagination 
+          activePage={activePage}
+          totalPages={productsResponse.totalPages}
+          onChange={page => setActivePage(page)} 
+        />
+      )}
     </div>
   );
 }
