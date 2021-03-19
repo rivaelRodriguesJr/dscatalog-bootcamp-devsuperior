@@ -1,3 +1,4 @@
+import Pagination from 'core/components/Pagination';
 import { ProductsResponse } from 'core/types/Product';
 import { makeRequest } from 'core/utils/request';
 import React, { useEffect, useState } from 'react';
@@ -10,13 +11,13 @@ const List = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [activePage, setActivePage] = useState(0);
   const history = useHistory();
-  
-  console.log(productsResponse);
+
+  // console.log(productsResponse);
 
   useEffect(() => {
     const params = {
       page: activePage,
-      linesPerPage: 12
+      linesPerPage: 4
     }
 
     setIsLoading(true);
@@ -35,11 +36,16 @@ const List = () => {
         ADICIONAR
       </button>
       <div className="admin-list-container">
-        <Card />
-        <Card />
-        <Card />
-        {/* <Card /> */}
-        {/* <Card /> */}
+        {productsResponse?.content.map(product => (
+          <Card key={product.id} product={product} />
+        ))}
+        {productsResponse && (
+          <Pagination
+            activePage={activePage}
+            totalPages={productsResponse.totalPages}
+            onChange={page => setActivePage(page)}
+          />
+        )}
       </div>
     </div>
   );
