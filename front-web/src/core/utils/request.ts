@@ -26,8 +26,8 @@ axios.interceptors.response.use(function (response) {
   return Promise.reject(error);
 });
 
-export const makeRequest = ({ method = 'GET', url, data, params, headers }: RequestParams) => {
-  return axios({
+export const makeRequest = <T = any>({ method = 'GET', url, data, params, headers }: RequestParams)  => {
+  return axios.request<T>({
     method,
     url: `${BASE_URL}${url}`,
     data,
@@ -36,16 +36,16 @@ export const makeRequest = ({ method = 'GET', url, data, params, headers }: Requ
   });
 }
 
-export const makePrivateRequest = ({ method = 'GET', url, data, params }: RequestParams) => {
+export const makePrivateRequest = <T = any>({ method = 'GET', url, data, params }: RequestParams) => {
   const sessionData = getSessionData();
   const headers = {
     'Authorization': `Bearer ${sessionData.access_token}`
   }
 
-  return makeRequest({ method, url, data, params, headers });
+  return makeRequest<T>({ method, url, data, params, headers });
 }
 
-export const makeLogin = (loginData: LoginData) => {
+export const makeLogin = <T = any>(loginData: LoginData) => {
   const token = `${CLIENT_ID}:${CLIENT_SECRET}`;
 
   const headers = {
@@ -55,5 +55,5 @@ export const makeLogin = (loginData: LoginData) => {
 
   const payload = qs.stringify({...loginData, grant_type: 'password'});
 
-  return makeRequest({ url: '/oauth/token', data: payload, method: 'POST', headers});
+  return makeRequest<T>({ url: '/oauth/token', data: payload, method: 'POST', headers });
 }

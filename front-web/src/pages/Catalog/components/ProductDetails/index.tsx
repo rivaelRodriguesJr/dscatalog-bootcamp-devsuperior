@@ -19,7 +19,7 @@ const ProductDetails = () => {
 
   useEffect(() => {
     setIsLoading(true);
-    makeRequest({ url: `/products/${productId}` })
+    makeRequest<Product>({ url: `/products/${productId}` })
       .then(response => setProduct(response.data))
       .finally(() => setIsLoading(false));
   }, [productId]);
