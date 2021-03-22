@@ -1,9 +1,11 @@
+import React, { useEffect, useState } from 'react';
+import { useForm, Controller } from 'react-hook-form';
+import { useHistory, useParams } from 'react-router-dom';
+import Select from 'react-select';
+import { toast } from 'react-toastify';
+import { Category, CategoryResponse } from 'core/types/Category';
 import { Product } from 'core/types/Product';
 import { makePrivateRequest, makeRequest } from 'core/utils/request';
-import React, { useEffect } from 'react';
-import { useForm } from 'react-hook-form';
-import { useHistory, useParams } from 'react-router-dom';
-import { toast } from 'react-toastify';
 import BaseForm from '../../BaseForm';
 import './styles.scss';
 
@@ -12,16 +14,19 @@ type FormState = {
   price: string;
   description: string;
   imgUrl: string;
-};
+  categories: Category[];
+}
 
 type ParamsType = {
   productId: string;
 }
 
 const Form = () => {
-  const { register, handleSubmit, errors, setValue } = useForm<FormState>();
+  const { register, handleSubmit, errors, setValue, control } = useForm<FormState>();
   const history = useHistory();
   const { productId } = useParams<ParamsType>();
+  const [isLoadingCategories, setIsLoadingCategories] = useState(false);
+  const [categories, setCategories] = useState<Category[]>([]);
   const isEditing = productId !== 'create';
   const formTitle = isEditing ? 'Editar produto' : 'cadastrar um produto';
 
@@ -33,9 +38,17 @@ const Form = () => {
           setValue('price', data.price);
           setValue('description', data.description);
           setValue('imgUrl', data.imgUrl);
+          setValue('categories', data.categories);
         });
     }
   }, [productId, isEditing, setValue]);
+
+  useEffect(() => {
+    setIsLoadingCategories(true);
+    makeRequest<CategoryResponse>({ url: '/categories' })
+      .then(response => setCategories(response.data.content))
+      .finally(() => setIsLoadingCategories(false));
+  }, []);
 
   const onSubmit = (data: FormState) => {
     makePrivateRequest({
@@ -52,9 +65,11 @@ const Form = () => {
       });
   }
 
+  const isNotEmpty = (array: any[]) => array && array.length > 0
+
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
-      <BaseForm 
+      <BaseForm
         title={formTitle}
       >
         <div className="row">
@@ -63,12 +78,12 @@ const Form = () => {
               <input
                 ref={register({
                   required: "Campo obrigatório",
-                  minLength: { value: 5, message: 'O campo deve ter no mínimo 5 caracteres'},
-                  maxLength: { value: 60, message: 'O campo deve ter no máximo 60 caracteres'}
+                  minLength: { value: 5, message: 'O campo deve ter no mínimo 5 caracteres' },
+                  maxLength: { value: 60, message: 'O campo deve ter no máximo 60 caracteres' }
                 })}
                 name="name"
                 type="text"
-                className={`form-control input-base ${errors.name && 'is-invalid'}`}
+                className="form-control input-base"
                 placeholder="Nome do produto"
               />
               <div className="invalid-feedback d-block">
@@ -76,11 +91,36 @@ const Form = () => {
               </div>
             </div>
             <div className="margin-bottom-30">
+              <Controller
+                as={Select}
+                name="categories"
+                options={categories}
+                control={control}
+                isLoading={isLoadingCategories}
+                getOptionLabel={(option: Category) => option.name}
+                getOptionValue={(option: Category) => String(option.id)}
+                classNamePrefix="categories-select"
+                placeholder="Categorias"
+                register={register}
+                isMulti
+                defaultValue={[]}
+                rules={{ 
+                  required: true,
+                  validate: isNotEmpty
+                }}
+              />
+              {errors.categories && (
+                <div className="invalid-feedback d-block">
+                  Campo obrigatório
+                </div>
+              )}
+            </div>
+            <div className="margin-bottom-30">
               <input
                 ref={register({ required: "Campo obrigatório" })}
                 name="price"
                 type="number"
-                className={`form-control input-base ${errors.price && 'is-invalid'}`}
+                className="form-control input-base"
                 placeholder="Preço"
               />
               <div className="invalid-feedback d-block">
@@ -92,7 +132,7 @@ const Form = () => {
                 ref={register({ required: "Campo obrigatório" })}
                 name="imgUrl"
                 type="text"
-                className={`form-control input-base ${errors.imgUrl && 'is-invalid'}`}
+                className="form-control input-base"
                 placeholder="Imagem do produto"
               />
               <div className="invalid-feedback d-block">
@@ -104,7 +144,7 @@ const Form = () => {
             <textarea
               ref={register({ required: "Campo obrigatório" })}
               name="description"
-              className={`form-control input-base ${errors.description && 'is-invalid'}`}
+              className="form-control input-base"
               placeholder="Descrição"
               cols={30}
               rows={10}
